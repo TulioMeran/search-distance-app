@@ -3,7 +3,7 @@ import HomePage from '../../pages/home';
 import ResultPage from '../../pages/results';
 const MainRoutes = () => {
   return (
-    <Router>
+    <Router basename={process.env.PUBLIC_URL}>
       <Routes>
         <Route path="">
           <Route path="" element={<HomePage />} />
