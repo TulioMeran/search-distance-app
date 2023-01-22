@@ -5,7 +5,13 @@ const MainRoutes = () => {
   return (
     <Router>
       <Routes>
-        <Route path="" element={<HomePage />} />
+        <Route path="">
+          <Route path="" element={<HomePage />} />
+          <Route
+            path="/:cityOfOrigin/:intermediateCities/:cityOfDestination/:dateOfTheTrip/:numberOfPassengers"
+            element={<HomePage />}
+          />
+        </Route>
         <Route
           path="results/:cityOfOrigin/:intermediateCities/:cityOfDestination/:dateOfTheTrip/:numberOfPassengers"
           element={<ResultPage />}

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ILocation from '../../types/location';
 import fakeApi from '../../api';
+import ResultItem from '../../components/resultItem';
 
 const ResultPage = () => {
   let params = useParams();
@@ -16,8 +17,8 @@ const ResultPage = () => {
 
   useEffect(() => {
     Promise.all([
-      api.getCitiesByName(params.cityOfOrigin as string),
-      api.getCitiesByName(params.cityOfDestination as string),
+      api.getCitiesByName(params.cityOfOrigin!),
+      api.getCitiesByName(params.cityOfDestination!),
     ])
       .then((values) => {
         const origin = values[0][0];
@@ -68,18 +69,39 @@ const ResultPage = () => {
       {!isLoading ? (
         !errorObject.hasError ? (
           <Box component={'div'}>
-            <h1>City of Origin: {params.cityOfOrigin}</h1>
-            <h1>
-              Intermediate cities:{' '}
-              {params.intermediateCities?.split('_').join(' , ')}
-            </h1>
-            <h1>City Of Destination: {params.cityOfDestination}</h1>
-            <h1>Date of the trip: {params.dateOfTheTrip}</h1>
-            <h1>Number of passengers: {params.numberOfPassengers}</h1>
-            <h1>Kilometers: {kilometers.toString()}</h1>
+            <ResultItem
+              testid="cityOfOrigin"
+              label="City of Origin"
+              value={params.cityOfOrigin!}
+            />
+            <ResultItem
+              testid="intermediateCities"
+              label="Intermediate cities"
+              value={params.intermediateCities?.split('_').join(' , ')!}
+            />
+            <ResultItem
+              testid="cityOfDestination"
+              label="City Of Destination"
+              value={params.cityOfDestination!}
+            />
+            <ResultItem
+              testid="dateOfTheTrip"
+              label="Date of the trip"
+              value={params.dateOfTheTrip!}
+            />
+            <ResultItem
+              testid="numberOfPassengers"
+              label="Number of passengers"
+              value={params.numberOfPassengers!}
+            />
+            <ResultItem
+              testid="kilometers"
+              label="Kilometers"
+              value={kilometers.toString()}
+            />
           </Box>
         ) : (
-          <h1>{errorObject.errorMessage}</h1>
+          <h1 data-testid="errorMessage">{errorObject.errorMessage}</h1>
         )
       ) : (
         <CircularProgress />

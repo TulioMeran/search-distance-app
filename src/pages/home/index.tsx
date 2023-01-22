@@ -1,21 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { Autocomplete, Box, Button, Grid, TextField } from '@mui/material';
 import ICity from '../../types/city';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import ISearchFormValue from '../../types/form/IFormValues';
 import { fieldRequiredErrorMessage } from '../../utils/Helpers';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { format } from 'date-fns';
 
 import fakeApi from '../../api';
+import { cityContext } from '../../context/city';
+import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import AdapterDateFns from '@date-io/date-fns';
 
 const HomePage = () => {
   let navigate = useNavigate();
+  let params = useParams();
   let api = fakeApi();
 
   const [citiesOrigin, setCitiesOrigin] = useState<ICity[]>([]);
   const [citiesIntermediate, setCitiesIntermediate] = useState<ICity[]>([]);
   const [citiesDestination, setCitiesDestination] = useState<ICity[]>([]);
+
+  const { cities } = useContext(cityContext);
+
   const {
     register,
     formState: { errors, isValid },
@@ -28,6 +35,10 @@ const HomePage = () => {
     register('intermediateCities', {
       required: fieldRequiredErrorMessage('Intermediate cities'),
     });
+    register('dateOfTheTrip', {
+      required: fieldRequiredErrorMessage('date Of The Trip'),
+      valueAsDate: true,
+    });
   }, [register]);
 
   useEffect(() => {
@@ -37,29 +48,11 @@ const HomePage = () => {
         setCitiesIntermediate(response);
       })
       .catch((err) => console.log(err));
-
-    setTimeout(() => {
-      debugger;
-      const params = window.location.search.split('&');
-      if (params) {
-        params.filter((p) => {
-          if (p.includes('cityOfOrigin')) {
-            debugger;
-            const value = p.split('=')[1];
-            setValue('cityOfOrigin', value);
-          } else if (p.includes('numberOfPassengers')) {
-            const value = p.split('=')[1];
-            setValue('numberOfPassengers', Number(value));
-          }
-        });
-      }
-    }, 2000);
   }, []);
 
   const handlerSearch: SubmitHandler<ISearchFormValue> = (
     data: ISearchFormValue
   ) => {
-    alert(JSON.stringify(data));
     navigate(
       `/results/${data.cityOfOrigin}/${data.intermediateCities
         .map((city) => city.name)
@@ -72,22 +65,19 @@ const HomePage = () => {
 
   useEffect(() => {
     if (isValid) {
-      /*
-      window.location.search = `?cityOfOrigin=${getValues(
-        'cityOfOrigin'
-      )}&intermediateCities=${getValues('intermediateCities')
-        .map((a) => a.name)
-        .join('_')}&cityOfDestination=${getValues(
-        'cityOfDestination'
-      )}&dateOfTheTrip=${format(
-        new Date(getValues('dateOfTheTrip')),
-        'yyyy-MM-dd'
-      )}&numberOfPassengers=${getValues('numberOfPassengers')}`;
-      */
+      navigate(
+        `/${getValues('cityOfOrigin')}/${getValues('intermediateCities')
+          .map((a) => a.name)
+          .join('_')}/${getValues('cityOfDestination')}/${format(
+          new Date(getValues('dateOfTheTrip')),
+          'yyyy-MM-dd'
+        )}/${getValues('numberOfPassengers')}`
+      );
     }
   }, [isValid]);
 
   useEffect(() => {
+    debugger;
     api
       .getCitiesByName(getValues('cityOfOrigin'))
       .then((response) => {
@@ -114,23 +104,19 @@ const HomePage = () => {
       <Grid container sx={{ padding: 5 }} rowGap={2}>
         <Grid item xs={12}>
           <Autocomplete
+            data-testid="cityOfOrigin"
             disablePortal
+            {...register('cityOfOrigin', {
+              required: fieldRequiredErrorMessage('City of origin'),
+              value: params.cityOfOrigin ? params.cityOfOrigin : '',
+            })}
             loading={citiesOrigin.length > 0}
             options={citiesOrigin}
-            inputValue={getValues('cityOfOrigin')}
             getOptionLabel={(option) => option.name}
-            value={
-              citiesOrigin.filter(
-                (c) => c.name === getValues('cityOfOrigin')
-              )[0]
-            }
-            renderInput={(params) => (
+            renderInput={(paramsInput) => (
               <TextField
-                {...register('cityOfOrigin', {
-                  required: fieldRequiredErrorMessage('City of origin'),
-                })}
                 error={errors.cityOfOrigin?.message !== undefined}
-                {...params}
+                {...paramsInput}
                 label="City of origin"
               />
             )}
@@ -143,6 +129,7 @@ const HomePage = () => {
         </Grid>
         <Grid item xs={12}>
           <Autocomplete
+            data-testid="intermediateCities"
             multiple
             disablePortal
             options={citiesIntermediate}
@@ -166,6 +153,7 @@ const HomePage = () => {
         </Grid>
         <Grid item xs={12}>
           <Autocomplete
+            data-testid="cityOfDestination"
             disablePortal
             options={citiesDestination}
             getOptionLabel={(option) => option.name}
@@ -187,19 +175,21 @@ const HomePage = () => {
           )}
         </Grid>
         <Grid item xs={12}>
-          <TextField
-            fullWidth
-            error={errors.dateOfTheTrip?.message !== undefined}
-            type={'date'}
-            {...register('dateOfTheTrip', {
-              required: fieldRequiredErrorMessage('date Of The Trip'),
-              valueAsDate: true,
-              onChange(event) {
-                debugger;
-                setValue('dateOfTheTrip', event.target.value);
-              },
-            })}
-          />
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DesktopDatePicker
+              label="Date Of The Trip"
+              inputFormat="yyyy-MM-dd"
+              data-testid="dateOfTheTrip"
+              value={
+                getValues('dateOfTheTrip') ? getValues('dateOfTheTrip') : null
+              }
+              minDate={Date.now()}
+              onChange={(event) => {
+                setValue('dateOfTheTrip', event!.toString());
+              }}
+              renderInput={(params) => <TextField fullWidth {...params} />}
+            />
+          </LocalizationProvider>
           {errors.dateOfTheTrip?.message !== undefined && (
             <h1 style={{ color: 'red', fontSize: 15 }}>
               {errors.dateOfTheTrip?.message}
@@ -208,6 +198,7 @@ const HomePage = () => {
         </Grid>
         <Grid item xs={12}>
           <TextField
+            data-testid="numberOfPassengers"
             error={errors.numberOfPassengers?.message !== undefined}
             fullWidth
             type={'number'}
