@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/searchDistanceCities/static/css/main.073c9b0a.css",
-    "main.js": "/searchDistanceCities/static/js/main.393c79d5.js",
-    "static/js/787.bae58137.chunk.js": "/searchDistanceCities/static/js/787.bae58137.chunk.js",
-    "index.html": "/searchDistanceCities/index.html",
-    "main.073c9b0a.css.map": "/searchDistanceCities/static/css/main.073c9b0a.css.map",
-    "main.393c79d5.js.map": "/searchDistanceCities/static/js/main.393c79d5.js.map",
-    "787.bae58137.chunk.js.map": "/searchDistanceCities/static/js/787.bae58137.chunk.js.map"
+    "main.css": "/search-distance-app/static/css/main.073c9b0a.css",
+    "main.js": "/search-distance-app/static/js/main.3e0eaadc.js",
+    "static/js/787.bae58137.chunk.js": "/search-distance-app/static/js/787.bae58137.chunk.js",
+    "index.html": "/search-distance-app/index.html",
+    "main.073c9b0a.css.map": "/search-distance-app/static/css/main.073c9b0a.css.map",
+    "main.3e0eaadc.js.map": "/search-distance-app/static/js/main.3e0eaadc.js.map",
+    "787.bae58137.chunk.js.map": "/search-distance-app/static/js/787.bae58137.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.073c9b0a.css",
-    "static/js/main.393c79d5.js"
+    "static/js/main.3e0eaadc.js"
   ]
 }
