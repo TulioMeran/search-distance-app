@@ -4,24 +4,21 @@ import ICity from '../../types/city';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import ISearchFormValue from '../../types/form/IFormValues';
 import { fieldRequiredErrorMessage } from '../../utils/Helpers';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 
 import fakeApi from '../../api';
-import { cityContext } from '../../context/city';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import AdapterDateFns from '@date-io/date-fns';
 
 const HomePage = () => {
   let navigate = useNavigate();
-  let params = useParams();
   let api = fakeApi();
 
   const [citiesOrigin, setCitiesOrigin] = useState<ICity[]>([]);
   const [citiesIntermediate, setCitiesIntermediate] = useState<ICity[]>([]);
   const [citiesDestination, setCitiesDestination] = useState<ICity[]>([]);
-
-  const { cities } = useContext(cityContext);
+  const [dateTrip, setDateTrip] = useState<string | null>(null);
 
   const {
     register,
@@ -37,7 +34,6 @@ const HomePage = () => {
     });
     register('dateOfTheTrip', {
       required: fieldRequiredErrorMessage('date Of The Trip'),
-      valueAsDate: true,
     });
   }, [register]);
 
@@ -77,7 +73,6 @@ const HomePage = () => {
   }, [isValid]);
 
   useEffect(() => {
-    debugger;
     api
       .getCitiesByName(getValues('cityOfOrigin'))
       .then((response) => {
@@ -99,6 +94,10 @@ const HomePage = () => {
       });
   }, [getValues('cityOfDestination')]);
 
+  useEffect(() => {
+    setValue('dateOfTheTrip', dateTrip!);
+  }, [dateTrip]);
+
   return (
     <Box component={'div'}>
       <Grid container sx={{ padding: 5 }} rowGap={2}>
@@ -106,10 +105,6 @@ const HomePage = () => {
           <Autocomplete
             data-testid="cityOfOrigin"
             disablePortal
-            {...register('cityOfOrigin', {
-              required: fieldRequiredErrorMessage('City of origin'),
-              value: params.cityOfOrigin ? params.cityOfOrigin : '',
-            })}
             loading={citiesOrigin.length > 0}
             options={citiesOrigin}
             getOptionLabel={(option) => option.name}
@@ -118,6 +113,9 @@ const HomePage = () => {
                 error={errors.cityOfOrigin?.message !== undefined}
                 {...paramsInput}
                 label="City of origin"
+                {...register('cityOfOrigin', {
+                  required: fieldRequiredErrorMessage('City of origin'),
+                })}
               />
             )}
           />
@@ -180,12 +178,10 @@ const HomePage = () => {
               label="Date Of The Trip"
               inputFormat="yyyy-MM-dd"
               data-testid="dateOfTheTrip"
-              value={
-                getValues('dateOfTheTrip') ? getValues('dateOfTheTrip') : null
-              }
+              value={dateTrip}
               minDate={Date.now()}
               onChange={(event) => {
-                setValue('dateOfTheTrip', event!.toString());
+                setDateTrip(event!.toString());
               }}
               renderInput={(params) => <TextField fullWidth {...params} />}
             />
